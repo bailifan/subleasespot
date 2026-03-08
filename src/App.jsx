@@ -132,12 +132,38 @@ function SubmitModal({ onClose, toast }) {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ title: "", city: "", state: "", type: "Office", sqft: "", price: "", term_left: "", contact_email: "", description: "", img: "🏢" });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState("");
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  const handlePhoto = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const uploadPhoto = async () => {
+    if (!photoFile) return null;
+    setUploadProgress("Uploading photo...");
+    const ext = photoFile.name.split(".").pop();
+    const filename = `listing-${Date.now()}.${ext}`;
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/listing-images/${filename}`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": photoFile.type },
+      body: photoFile,
+    });
+    if (!res.ok) { setUploadProgress("Photo upload failed — listing saved without photo"); return null; }
+    setUploadProgress("");
+    return `${SUPABASE_URL}/storage/v1/object/public/listing-images/${filename}`;
+  };
 
   const submit = async () => {
     setLoading(true);
     try {
-      await db.submitListing({ ...form, sqft: parseInt(form.sqft), price: parseInt(form.price), term_left: parseInt(form.term_left), plan, featured: plan === "featured" || plan === "broker", verified: false, active: true });
+      const photo_url = await uploadPhoto();
+      await db.submitListing({ ...form, sqft: parseInt(form.sqft), price: parseInt(form.price), term_left: parseInt(form.term_left), plan, featured: plan === "featured" || plan === "broker", verified: false, active: true, ...(photo_url && { photo_url }) });
       setStep(3);
       if (plan !== "free") toast("🎉 Plan selected — Stripe checkout coming soon!");
     } catch {
@@ -192,6 +218,11 @@ function SubmitModal({ onClose, toast }) {
               </FieldGroup>
               <FieldGroup label="Your Email" style={{ gridColumn: "1/-1" }}><input value={form.contact_email} onChange={set("contact_email")} placeholder="you@company.com" style={inputStyle} /></FieldGroup>
               <FieldGroup label="Description" style={{ gridColumn: "1/-1" }}><textarea value={form.description} onChange={set("description")} rows={3} placeholder="Amenities, condition, access, special features..." style={{ ...inputStyle, resize: "vertical" }} /></FieldGroup>
+              <FieldGroup label="Photo (optional)" style={{ gridColumn: "1/-1" }}>
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhoto} style={{ fontSize: "13px", color: "#555" }} />
+                {photoPreview && <img src={photoPreview} alt="preview" style={{ marginTop: "8px", maxHeight: "120px", borderRadius: "6px", objectFit: "cover", width: "100%" }} />}
+                {uploadProgress && <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>{uploadProgress}</div>}
+              </FieldGroup>
             </div>
             <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
               <Btn onClick={onClose}>Cancel</Btn>
@@ -222,6 +253,7 @@ function ListingCard({ l, onContact }) {
       </div>
       <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "17px", fontWeight: "700", color: "#1a1a2e", marginBottom: "3px" }}>{l.img || "🏢"} {l.title}</div>
       <div style={{ fontSize: "13px", color: "#777" }}>📍 {l.city}, {l.state} &nbsp;·&nbsp; {fmtSqft(l.sqft)} &nbsp;·&nbsp; <span style={{ color: "#c0392b", fontWeight: "700" }}>{l.term_left}mo remaining</span></div>
+      {l.photo_url && <img src={l.photo_url} alt={l.title} style={{ width: "100%", height: "160px", objectFit: "cover", borderRadius: "6px", marginTop: "12px" }} />}
       {open && <p style={{ margin: "12px 0 0", fontSize: "14px", color: "#444", lineHeight: "1.65", borderTop: "1px solid #f2f2f2", paddingTop: "12px" }}>{(l.description || "").replace(/QR Code Link to This Post\s*/gi, "").trim()}</p>}
       <div style={{ display: "flex", gap: "8px", marginTop: "14px" }}>
         <Btn onClick={() => setOpen(!open)}>{open ? "Less ↑" : "Details ↓"}</Btn>

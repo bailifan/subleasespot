@@ -222,7 +222,7 @@ function ListingCard({ l, onContact }) {
       </div>
       <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "17px", fontWeight: "700", color: "#1a1a2e", marginBottom: "3px" }}>{l.img || "🏢"} {l.title}</div>
       <div style={{ fontSize: "13px", color: "#777" }}>📍 {l.city}, {l.state} &nbsp;·&nbsp; {fmtSqft(l.sqft)} &nbsp;·&nbsp; <span style={{ color: "#c0392b", fontWeight: "700" }}>{l.term_left}mo remaining</span></div>
-      {open && <p style={{ margin: "12px 0 0", fontSize: "14px", color: "#444", lineHeight: "1.65", borderTop: "1px solid #f2f2f2", paddingTop: "12px" }}>{l.description}</p>}
+      {open && <p style={{ margin: "12px 0 0", fontSize: "14px", color: "#444", lineHeight: "1.65", borderTop: "1px solid #f2f2f2", paddingTop: "12px" }}>{(l.description || "").replace(/QR Code Link to This Post\s*/gi, "").trim()}</p>}
       <div style={{ display: "flex", gap: "8px", marginTop: "14px" }}>
         <Btn onClick={() => setOpen(!open)}>{open ? "Less ↑" : "Details ↓"}</Btn>
         <Btn dark onClick={() => onContact(l)}>Contact Lessor →</Btn>

@@ -36,10 +36,10 @@ const db = {
 
 // ─── STRIPE CONFIG (add your keys when ready) ─────────────────────────────────
 const STRIPE = {
-  publishableKey: "pk_live_YOUR_KEY_HERE", // paste your Stripe publishable key
+  publishableKey: "pk_live_51RDo39JUf2t1v5EFvu21BeBc0TNCnctAzmjxAIGZJ0doE2Jqi0zGq2twg2iE2i0kxlTuEk34kjrHwEhz93lox3QJ00wPVJGJiw", // paste your Stripe publishable key
   prices: {
-    featured: "price_YOUR_FEATURED_PRICE_ID", // $99/mo price ID from Stripe dashboard
-    broker: "price_YOUR_BROKER_PRICE_ID",     // $299/mo price ID from Stripe dashboard
+    featured: "price_1T8ZSHJUf2t1v5EFZoIP2Jzw", // $99/mo price ID from Stripe dashboard
+    broker: "price_1T8ZTRJUf2t1v5EFmDqCNSOc",     // $299/mo price ID from Stripe dashboard
   },
 };
 

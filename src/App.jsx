@@ -6,7 +6,7 @@ const SUPABASE_KEY = "sb_publishable_9OpjrwLBrbCoshz19dQGzQ_SOtPL5Vh";
 
 const db = {
   async getListings(filters = {}) {
-    let url = `${SUPABASE_URL}/rest/v1/listings?select=*&active=eq.true&expires_at=gt.${new Date().toISOString()}&order=featured.desc,created_at.desc`;
+    let url = `${SUPABASE_URL}/rest/v1/listings?select=*&active=eq.true&order=featured.desc,created_at.desc`;
     if (filters.type && filters.type !== "All") url += `&type=eq.${filters.type}`;
     if (filters.city && filters.city !== "All Cities") url += `&city=eq.${encodeURIComponent(filters.city)}`;
     if (filters.maxPrice) url += `&price=lte.${filters.maxPrice}`;
